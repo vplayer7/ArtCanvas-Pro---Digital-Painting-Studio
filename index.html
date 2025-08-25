@@ -1,0 +1,972 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ArtCanvas Pro - Digital Painting Studio</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+            overflow-x: hidden;
+        }
+        
+        .app-container {
+            max-width: 1800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25);
+            display: grid;
+            grid-template-columns: 250px 1fr 250px;
+            grid-template-rows: auto 1fr;
+            height: calc(100vh - 40px);
+        }
+        
+        /* Header section */
+        .app-header {
+            grid-column: 1 / 4;
+            background: linear-gradient(135deg, #4a6cf7, #6a11cb);
+            color: white;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        .app-title {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 28px;
+            font-weight: 700;
+        }
+        
+        .app-title i {
+            background: white;
+            color: #6a11cb;
+            width: 45px;
+            height: 45px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .app-actions {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .btn {
+            background: rgba(255, 255, 255, 0.15);
+            border: none;
+            color: white;
+            padding: 12px 22px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .btn:hover {
+            background: rgba(255, 255, 255, 0.25);
+            transform: translateY(-2px);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #ff9a9e, #fad0c4);
+            color: #333;
+            font-weight: 600;
+        }
+        
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #ff6b6b, #ffa580);
+            color: white;
+        }
+        
+        /* Ad banners */
+        .ad-banner {
+            background: #f8f9fa;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 20px 15px;
+            font-weight: 600;
+            color: #444;
+            overflow: hidden;
+            height: 100%;
+        }
+        
+        .ad-left {
+            border-right: 1px solid #eee;
+        }
+        
+        .ad-right {
+            border-left: 1px solid #eee;
+        }
+        
+        .ad-content {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            width: 90%;
+            height: auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border: 1px dashed #e0e0e0;
+            margin: 10px 0;
+            transition: transform 0.3s ease;
+        }
+        
+        .ad-content:hover {
+            transform: translateY(-5px);
+        }
+        
+        .ad-label {
+            font-size: 12px;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+        }
+        
+        .ad-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 8px;
+        }
+        
+        .ad-desc {
+            font-size: 14px;
+            color: #666;
+            text-align: center;
+            line-height: 1.4;
+            margin-bottom: 15px;
+        }
+        
+        .ad-icon {
+            font-size: 32px;
+            color: #4a6cf7;
+            margin-bottom: 15px;
+        }
+        
+        .ad-button {
+            background: linear-gradient(135deg, #4a6cf7, #6a11cb);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .ad-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 10px rgba(74, 108, 247, 0.3);
+        }
+        
+        /* Main content area */
+        .main-content {
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            background: #f8f9fa;
+        }
+        
+        .tool-bar {
+            background: white;
+            padding: 15px 25px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            border-bottom: 1px solid #eee;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+        }
+        
+        .tool-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 10px 18px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+        
+        .tool-btn {
+            width: 45px;
+            height: 45px;
+            border-radius: 10px;
+            background: white;
+            border: 2px solid #e8eaed;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: #555;
+            font-size: 18px;
+        }
+        
+        .tool-btn:hover {
+            background: #e8eaed;
+            transform: translateY(-2px);
+        }
+        
+        .tool-btn.active {
+            background: linear-gradient(135deg, #4a6cf7, #6a11cb);
+            color: white;
+            border-color: transparent;
+            box-shadow: 0 4px 12px rgba(74, 108, 247, 0.3);
+        }
+        
+        .slider-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            min-width: 180px;
+        }
+        
+        .slider-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+            color: #555;
+            font-weight: 500;
+        }
+        
+        .slider-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .range-slider {
+            flex: 1;
+            height: 6px;
+            border-radius: 3px;
+            background: #e1e3e6;
+            outline: none;
+            -webkit-appearance: none;
+        }
+        
+        .range-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #4a6cf7, #6a11cb);
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+        
+        .color-selector {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        
+        .color-option {
+            width: 35px;
+            height: 35px;
+            border-radius: 8px;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+        
+        .color-option:hover {
+            transform: scale(1.1);
+        }
+        
+        .color-option.selected {
+            border-color: #4a6cf7;
+            transform: scale(1.15);
+            box-shadow: 0 0 0 3px white, 0 0 0 6px #4a6cf7;
+        }
+        
+        .custom-color {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 10px 15px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+        
+        #customColor {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            border: 2px solid #e8eaed;
+            cursor: pointer;
+            padding: 0;
+        }
+        
+        /* Canvas area */
+        .canvas-container {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+            background: #f8f9fa;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        #canvas {
+            background: white;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+            border-radius: 8px;
+            cursor: crosshair;
+        }
+        
+        .canvas-placeholder {
+            text-align: center;
+            padding: 20px;
+            color: #888;
+        }
+        
+        .canvas-placeholder i {
+            font-size: 48px;
+            margin-bottom: 15px;
+            color: #ddd;
+        }
+        
+        .canvas-placeholder h3 {
+            font-size: 22px;
+            margin-bottom: 10px;
+            color: #555;
+        }
+        
+        .canvas-placeholder p {
+            color: #777;
+            max-width: 400px;
+            line-height: 1.5;
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 1200px) {
+            .app-container {
+                grid-template-columns: 200px 1fr 200px;
+            }
+            
+            .ad-content {
+                padding: 15px;
+            }
+            
+            .ad-title {
+                font-size: 16px;
+            }
+            
+            .ad-desc {
+                font-size: 13px;
+            }
+        }
+        
+        @media (max-width: 992px) {
+            .app-container {
+                grid-template-columns: 1fr;
+                grid-template-rows: auto auto 1fr auto;
+            }
+            
+            .app-header {
+                grid-column: 1;
+            }
+            
+            .ad-left, .ad-right {
+                display: none;
+            }
+            
+            .ad-top, .ad-bottom {
+                display: flex;
+                padding: 15px;
+                border-bottom: 1px solid #eee;
+            }
+            
+            .tool-bar {
+                padding: 12px 15px;
+                gap: 15px;
+            }
+            
+            .tool-group {
+                padding: 8px 12px;
+            }
+            
+            .slider-group {
+                min-width: 150px;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .app-header {
+                flex-direction: column;
+                gap: 15px;
+                align-items: flex-start;
+            }
+            
+            .app-actions {
+                width: 100%;
+                justify-content: space-between;
+            }
+            
+            .tool-bar {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .slider-group {
+                min-width: 100%;
+            }
+            
+            .btn {
+                padding: 10px 15px;
+                font-size: 14px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .app-title {
+                font-size: 22px;
+            }
+            
+            .app-title i {
+                width: 38px;
+                height: 38px;
+            }
+            
+            .tool-btn {
+                width: 40px;
+                height: 40px;
+                font-size: 16px;
+            }
+            
+            .ad-content {
+                padding: 12px;
+            }
+            
+            .ad-title {
+                font-size: 15px;
+            }
+            
+            .ad-desc {
+                font-size: 12px;
+            }
+            
+            .btn {
+                padding: 8px 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header with app title and actions -->
+        <header class="app-header">
+            <div class="app-title">
+                <i class="fas fa-paint-brush"></i>
+                <div>
+                    ArtCanvas Pro
+                    <div style="font-size: 14px; opacity: 0.8; font-weight: 400;">Digital Painting Studio</div>
+                </div>
+            </div>
+            <div class="app-actions">
+                <button class="btn" id="undoBtn"><i class="fas fa-undo"></i> Undo</button>
+                <button class="btn" id="redoBtn"><i class="fas fa-redo"></i> Redo</button>
+                <button class="btn" id="clearBtn"><i class="fas fa-broom"></i> Clear</button>
+                <button class="btn btn-primary" id="saveBtn"><i class="fas fa-download"></i> Save Artwork</button>
+            </div>
+        </header>
+        
+        <!-- Left ad banner -->
+        <div class="ad-banner ad-left">
+            <div class="ad-content">
+                <script type="text/javascript">
+	atOptions = {
+		'key' : 'e5103f657d967e1dd46c096a36ce1978',
+		'format' : 'iframe',
+		'height' : 468,
+		'width' : 60,
+		'params' : {}
+	};
+</script>
+<script type="text/javascript" src="//www.highperformanceformat.com/e5103f657d967e1dd46c096a36ce1978/invoke.js"></script>
+<script type="text/javascript" src="//www.highperformanceformat.com/5be8e0741af27e6b4a46851cdcd26c24/invoke.js"></script>
+            </div>
+
+        </div>
+        
+        <!-- Main content area -->
+        <main class="main-content">
+            <!-- Tool bar at the top -->
+            <div class="tool-bar">
+                <div class="tool-group">
+                    <button id="pencil" class="tool-btn active" title="Pencil"><i class="fas fa-pencil-alt"></i></button>
+                    <button id="brush" class="tool-btn" title="Brush"><i class="fas fa-paint-brush"></i></button>
+                    <button id="eraser" class="tool-btn" title="Eraser"><i class="fas fa-eraser"></i></button>
+                    <button id="fill" class="tool-btn" title="Fill"><i class="fas fa-fill-drip"></i></button>
+                    <button id="shape" class="tool-btn" title="Shapes"><i class="fas fa-shapes"></i></button>
+                </div>
+                
+                <div class="slider-group">
+                    <div class="slider-label">
+                        <span>Brush Size</span>
+                        <span id="sizeValue">5px</span>
+                    </div>
+                    <div class="slider-container">
+                        <i class="fas fa-circle" style="font-size: 8px; color: #555;"></i>
+                        <input type="range" min="1" max="50" value="5" class="range-slider" id="sizeSlider">
+                        <i class="fas fa-circle" style="font-size: 24px; color: #555;"></i>
+                    </div>
+                </div>
+                
+                <div class="slider-group">
+                    <div class="slider-label">
+                        <span>Opacity</span>
+                        <span id="opacityValue">100%</span>
+                    </div>
+                    <div class="slider-container">
+                        <i class="fas fa-eye" style="color: #555;"></i>
+                        <input type="range" min="10" max="100" value="100" class="range-slider" id="opacitySlider">
+                        <i class="fas fa-eye-slash" style="opacity: 0.3; color: #555;"></i>
+                    </div>
+                </div>
+                
+                <div class="tool-group">
+                    <div class="color-selector">
+                        <div class="color-option selected" data-color="#4a6cf7" style="background: linear-gradient(135deg, #2c3e50, #4a6cf7);"></div>
+                        <div class="color-option" data-color="#E74C3C" style="background: linear-gradient(135deg, #C0392B, #E74C3C);"></div>
+                        <div class="color-option" data-color="#2ECC71" style="background: linear-gradient(135deg, #27AE60, #2ECC71);"></div>
+                        <div class="color-option" data-color="#3498DB" style="background: linear-gradient(135deg, #2980B9, #3498DB);"></div>
+                        <div class="color-option" data-color="#9B59B6" style="background: linear-gradient(135deg, #8E44AD, #9B59B6);"></div>
+                        <div class="color-option" data-color="#F1C40F" style="background: linear-gradient(135deg, #D68910, #F1C40F);"></div>
+                        <div class="color-option" data-color="#E67E22" style="background: linear-gradient(135deg, #D35400, #E67E22);"></div>
+                        <div class="color-option" data-color="#ECF0F1" style="background: linear-gradient(135deg, #BDC3C7, #ECF0F1); border: 1px solid #eee;"></div>
+                    </div>
+                </div>
+                
+                <div class="custom-color">
+                    <span>Custom:</span>
+                    <input type="color" id="customColor" value="#4a6cf7">
+                </div>
+            </div>
+            
+            <!-- Canvas area -->
+            <div class="canvas-container">
+                <canvas id="canvas" width="1000" height="600"></canvas>
+            </div>
+        </main>
+        
+        <!-- Right ad banner -->
+        <div class="ad-banner ad-right">
+            <div class="ad-content">
+                <script type="text/javascript">
+	atOptions = {
+		'key' : '5be8e0741af27e6b4a46851cdcd26c24',
+		'format' : 'iframe',
+		'height' : 728,
+		'width' : 90,
+		'params' : {}
+	};
+</script>
+<script type="text/javascript" src="//www.highperformanceformat.com/5be8e0741af27e6b4a46851cdcd26c24/invoke.js"></script>
+            </div>
+            
+
+        </div>
+        
+        <!-- Mobile ad banners (hidden by default) -->
+        <div class="ad-banner ad-top" style="display: none;">
+            <div class="ad-content">
+                <script type="text/javascript">
+	atOptions = {
+		'key' : '6652c4f55731993ef84b511cdffe178b',
+		'format' : 'iframe',
+		'height' : 60,
+		'width' : 468,
+		'params' : {}
+	};
+</script>
+<script type="text/javascript" src="//www.highperformanceformat.com/6652c4f55731993ef84b511cdffe178b/invoke.js"></script>
+            </div>
+        </div>
+        
+
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Canvas setup
+            const canvas = document.getElementById('canvas');
+            const ctx = canvas.getContext('2d');
+            let isDrawing = false;
+            let currentTool = 'pencil';
+            let currentColor = '#4a6cf7';
+            let currentSize = 5;
+            let currentOpacity = 1.0;
+            let lastX = 0;
+            let lastY = 0;
+            let drawingHistory = [];
+            let historyStep = -1;
+            
+            // Set canvas size to match container
+            function resizeCanvas() {
+                const container = document.querySelector('.canvas-container');
+                const containerWidth = container.clientWidth;
+                const containerHeight = container.clientHeight;
+                
+                // Maintain aspect ratio
+                const aspectRatio = 5/3; // 5:3 ratio
+                let width = containerWidth;
+                let height = width / aspectRatio;
+                
+                if (height > containerHeight) {
+                    height = containerHeight;
+                    width = height * aspectRatio;
+                }
+                
+                // Only resize if dimensions actually changed
+                if (canvas.width !== width || canvas.height !== height) {
+                    // Save current drawing
+                    const currentImageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                    
+                    // Resize canvas
+                    canvas.width = width;
+                    canvas.height = height;
+                    
+                    // Restore drawing if we had one
+                    if (currentImageData.data.some(channel => channel !== 0)) {
+                        ctx.putImageData(currentImageData, 0, 0);
+                    } else {
+                        // Clear canvas with white background
+                        ctx.fillStyle = 'white';
+                        ctx.fillRect(0, 0, canvas.width, canvas.height);
+                    }
+                }
+            }
+            
+            // Initialize canvas
+            window.addEventListener('resize', resizeCanvas);
+            resizeCanvas();
+            
+            // Save drawing state to history
+            function saveDrawingState() {
+                // If we're somewhere in the middle of history, remove future states
+                if (historyStep < drawingHistory.length - 1) {
+                    drawingHistory = drawingHistory.slice(0, historyStep + 1);
+                }
+                
+                // Save current canvas state
+                drawingHistory.push(ctx.getImageData(0, 0, canvas.width, canvas.height));
+                historyStep = drawingHistory.length - 1;
+                
+                // Limit history size
+                if (drawingHistory.length > 50) {
+                    drawingHistory.shift();
+                    historyStep--;
+                }
+                
+                // Update button states
+                updateUndoRedoButtons();
+            }
+            
+            // Update undo/redo button states
+            function updateUndoRedoButtons() {
+                document.getElementById('undoBtn').disabled = historyStep <= 0;
+                document.getElementById('redoBtn').disabled = historyStep >= drawingHistory.length - 1;
+            }
+            
+            // Tool selection
+            const toolButtons = document.querySelectorAll('.tool-btn');
+            toolButtons.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    toolButtons.forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    currentTool = this.id;
+                    
+                    // Change cursor based on tool
+                    switch(currentTool) {
+                        case 'pencil':
+                        case 'brush':
+                            canvas.style.cursor = 'crosshair';
+                            break;
+                        case 'eraser':
+                            canvas.style.cursor = 'cell';
+                            break;
+                        case 'fill':
+                            canvas.style.cursor = 'grab';
+                            break;
+                        case 'shape':
+                            canvas.style.cursor = 'cell';
+                            break;
+                    }
+                });
+            });
+            
+            // Size slider
+            const sizeSlider = document.getElementById('sizeSlider');
+            const sizeValue = document.getElementById('sizeValue');
+            
+            sizeSlider.addEventListener('input', function() {
+                currentSize = this.value;
+                sizeValue.textContent = `${this.value}px`;
+            });
+            
+            // Opacity slider
+            const opacitySlider = document.getElementById('opacitySlider');
+            const opacityValue = document.getElementById('opacityValue');
+            
+            opacitySlider.addEventListener('input', function() {
+                currentOpacity = this.value / 100;
+                opacityValue.textContent = `${this.value}%`;
+            });
+            
+            // Color selection
+            const colorOptions = document.querySelectorAll('.color-option');
+            const customColor = document.getElementById('customColor');
+            
+            colorOptions.forEach(option => {
+                option.addEventListener('click', function() {
+                    currentColor = this.getAttribute('data-color');
+                    customColor.value = currentColor;
+                    colorOptions.forEach(opt => opt.classList.remove('selected'));
+                    this.classList.add('selected');
+                });
+            });
+            
+            customColor.addEventListener('input', function() {
+                currentColor = this.value;
+                // Remove selection from preset colors
+                colorOptions.forEach(opt => opt.classList.remove('selected'));
+            });
+            
+            // Save button functionality
+            document.getElementById('saveBtn').addEventListener('click', function() {
+                const link = document.createElement('a');
+                link.download = 'artcanvas-drawing.png';
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+            });
+            
+            // Clear button functionality
+            document.getElementById('clearBtn').addEventListener('click', function() {
+                if (confirm('Are you sure you want to clear the canvas?')) {
+                    ctx.fillStyle = 'white';
+                    ctx.fillRect(0, 0, canvas.width, canvas.height);
+                    saveDrawingState();
+                }
+            });
+            
+            // Undo functionality
+            document.getElementById('undoBtn').addEventListener('click', function() {
+                if (historyStep > 0) {
+                    historyStep--;
+                    ctx.putImageData(drawingHistory[historyStep], 0, 0);
+                    updateUndoRedoButtons();
+                }
+            });
+            
+            // Redo functionality
+            document.getElementById('redoBtn').addEventListener('click', function() {
+                if (historyStep < drawingHistory.length - 1) {
+                    historyStep++;
+                    ctx.putImageData(drawingHistory[historyStep], 0, 0);
+                    updateUndoRedoButtons();
+                }
+            });
+            
+            // Drawing functions
+            function startDrawing(e) {
+                isDrawing = true;
+                
+                // Get position
+                const rect = canvas.getBoundingClientRect();
+                lastX = e.clientX - rect.left;
+                lastY = e.clientY - rect.top;
+                
+                // Save state at beginning of new stroke
+                saveDrawingState();
+            }
+            
+            function draw(e) {
+                if (!isDrawing) return;
+                
+                ctx.lineCap = 'round';
+                ctx.lineJoin = 'round';
+                ctx.globalAlpha = currentOpacity;
+                
+                // Get position
+                const rect = canvas.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                
+                ctx.beginPath();
+                
+                if (currentTool === 'eraser') {
+                    ctx.strokeStyle = 'white';
+                } else {
+                    ctx.strokeStyle = currentColor;
+                }
+                
+                ctx.lineWidth = currentSize;
+                ctx.moveTo(lastX, lastY);
+                ctx.lineTo(x, y);
+                ctx.stroke();
+                
+                [lastX, lastY] = [x, y];
+            }
+            
+            function stopDrawing() {
+                isDrawing = false;
+            }
+            
+            // Mouse events
+            canvas.addEventListener('mousedown', startDrawing);
+            canvas.addEventListener('mousemove', draw);
+            canvas.addEventListener('mouseup', stopDrawing);
+            canvas.addEventListener('mouseout', stopDrawing);
+            
+            // Touch events
+            canvas.addEventListener('touchstart', function(e) {
+                e.preventDefault();
+                const touch = e.touches[0];
+                const mouseEvent = new MouseEvent('mousedown', {
+                    clientX: touch.clientX,
+                    clientY: touch.clientY
+                });
+                canvas.dispatchEvent(mouseEvent);
+            });
+            
+            canvas.addEventListener('touchmove', function(e) {
+                e.preventDefault();
+                const touch = e.touches[0];
+                const mouseEvent = new MouseEvent('mousemove', {
+                    clientX: touch.clientX,
+                    clientY: touch.clientY
+                });
+                canvas.dispatchEvent(mouseEvent);
+            });
+            
+            canvas.addEventListener('touchend', function(e) {
+                e.preventDefault();
+                const mouseEvent = new MouseEvent('mouseup', {});
+                canvas.dispatchEvent(mouseEvent);
+            });
+            
+            // Initialize with empty canvas
+            ctx.fillStyle = 'white';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            saveDrawingState();
+            
+            // Add a demo drawing to showcase the canvas
+            function drawDemo() {
+                // Draw a simple flower
+                ctx.strokeStyle = '#FF6B6B';
+                ctx.lineWidth = 8;
+                ctx.beginPath();
+                ctx.moveTo(canvas.width/2, canvas.height/2 + 50);
+                ctx.lineTo(canvas.width/2, canvas.height/2);
+                ctx.stroke();
+                
+                // Petals
+                ctx.strokeStyle = '#4ECDC4';
+                ctx.lineWidth = 12;
+                
+                // Top
+                ctx.beginPath();
+                ctx.arc(canvas.width/2, canvas.height/2 - 20, 20, 0, Math.PI * 2);
+                ctx.stroke();
+                
+                // Right
+                ctx.beginPath();
+                ctx.arc(canvas.width/2 + 20, canvas.height/2, 20, 0, Math.PI * 2);
+                ctx.stroke();
+                
+                // Bottom
+                ctx.beginPath();
+                ctx.arc(canvas.width/2, canvas.height/2 + 20, 20, 0, Math.PI * 2);
+                ctx.stroke();
+                
+                // Left
+                ctx.beginPath();
+                ctx.arc(canvas.width/2 - 20, canvas.height/2, 20, 0, Math.PI * 2);
+                ctx.stroke();
+                
+                // Center
+                ctx.fillStyle = '#FFD166';
+                ctx.beginPath();
+                ctx.arc(canvas.width/2, canvas.height/2, 10, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Add text
+                ctx.font = 'bold 24px "Segoe UI", Arial';
+                ctx.fillStyle = '#333';
+                ctx.textAlign = 'center';
+                ctx.fillText('Start Painting!', canvas.width / 2, 50);
+                
+                // Save the demo drawing to history
+                saveDrawingState();
+            }
+            
+            // Draw demo after a short delay
+            setTimeout(drawDemo, 300);
+            
+            // Mobile ad visibility
+            function updateAdVisibility() {
+                const adTop = document.querySelector('.ad-top');
+                const adBottom = document.querySelector('.ad-bottom');
+                const adLeft = document.querySelector('.ad-left');
+                const adRight = document.querySelector('.ad-right');
+                
+                if (window.innerWidth <= 992) {
+                    adTop.style.display = 'flex';
+                    adBottom.style.display = 'flex';
+                    adLeft.style.display = 'none';
+                    adRight.style.display = 'none';
+                } else {
+                    adTop.style.display = 'none';
+                    adBottom.style.display = 'none';
+                    adLeft.style.display = 'flex';
+                    adRight.style.display = 'flex';
+                }
+            }
+            
+            window.addEventListener('resize', function() {
+                resizeCanvas();
+                updateAdVisibility();
+            });
+            
+            // Initial ad visibility
+            updateAdVisibility();
+        });
+    </script>
+</body>
+</html>
